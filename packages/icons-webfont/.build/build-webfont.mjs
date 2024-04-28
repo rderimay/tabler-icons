@@ -26,6 +26,12 @@ const getAlliasesFlat = () => {
   return allAliases
 }
 
+const camelCase = (str) => {
+    return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function (word, index) {
+        return index == 0 ? word.toLowerCase() : word.toUpperCase();
+    }).replace(/[\s\-_]+/g, '');
+}
+
 asyncForEach(types, async type => {
   console.log(`Building webfont for ${type} icons`)
 
@@ -63,6 +69,11 @@ asyncForEach(types, async type => {
       const compiled = template(fs.readFileSync(`${DIR}/.build/iconfont.scss`).toString())
       const resultSCSS = compiled(options)
       fs.writeFileSync(`${DIR}/dist/tabler-icons${type !== 'all' ? `-${type}` : ''}.scss`, resultSCSS)
+
+      //swift
+      const compiledSwift = template(fs.readFileSync(`${DIR}/.build/iconfont.swift`).toString(), { 'imports': { 'camelCase': camelCase } })
+      const resultSwift = compiledSwift(options)
+      fs.writeFileSync(`${DIR}/dist/tabler-icons${type !== 'all' ? `-${type}` : ''}.swift`, resultSwift)
 
       //html
       const compiledHtml = template(fs.readFileSync(`${DIR}/.build/iconfont.html`).toString())
